@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+      - name: Determine version number
+        id: version
+        run: echo "BIN_VERSION=$(git describe --tags)" >> "$GITHUB_OUTPUT"
+      - name: Build
+        uses: docker/build-push-action@v3
+        with:
+          tags: apognu/test:latest
+          build-args: |
+            BIN_VERSION=${{ steps.version.outputs.BIN_VERSION }}
